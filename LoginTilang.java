@@ -30,7 +30,7 @@ public class LoginTilang extends JFrame {
     private JButton loginButton;
     private JButton registerButton;
 
-    private String loggedInUsername; // Track logged in user
+    private String loggedInUsername; 
 
     public LoginTilang() {
         super("Login");
@@ -38,13 +38,12 @@ public class LoginTilang extends JFrame {
     }
 
     private void initComponents() {
-        JPanel panel = new JPanel(new BorderLayout()); // Menggunakan BorderLayout untuk menempatkan komponen
-
+        JPanel panel = new JPanel(new BorderLayout()); 
         JLabel titleLabel = new JLabel("Welcome to Tilang App", JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18)); // Set font dan ukuran untuk judul
-        panel.add(titleLabel, BorderLayout.NORTH); // Tambahkan judul di bagian atas
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18)); 
+        panel.add(titleLabel, BorderLayout.NORTH); 
 
-        JPanel centerPanel = new JPanel(new GridLayout(3, 2)); // Panel untuk input dan tombol
+        JPanel centerPanel = new JPanel(new GridLayout(3, 2));
         JLabel usernameLabel = new JLabel("Username:");
         usernameField = new JTextField(20);
 
@@ -62,7 +61,7 @@ public class LoginTilang extends JFrame {
         centerPanel.add(loginButton);
       
 
-        panel.add(centerPanel, BorderLayout.CENTER); // Tambahkan panel input dan tombol di tengah
+        panel.add(centerPanel, BorderLayout.CENTER); 
 
         loginButton.addActionListener(new ActionListener() {
             @Override
@@ -78,7 +77,7 @@ public class LoginTilang extends JFrame {
 
                 // Create HttpRequest
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:8000/login")) // Sesuaikan URL
+                        .uri(URI.create("http://localhost:8000/login")) 
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();
@@ -90,37 +89,32 @@ public class LoginTilang extends JFrame {
                             System.out.println("Response Body: " + response.body());
 
                             // Handle response accordingly
-                            if (response.statusCode() == 200) {
-                                loggedInUsername = username; // Set user yang login
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        showDashboard();
-                                    }
-                                });
+                             if (response.statusCode() == 200) {
+                                loggedInUsername = username;
+                                SwingUtilities.invokeLater(() -> showDashboard());
+                            } else if (response.statusCode() == 401) {
+                                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(LoginTilang.this,
+                                        "Incorrect password. Please try again.",
+                                        "Login Status",
+                                        JOptionPane.ERROR_MESSAGE));
+                            } else if (response.statusCode() == 404) {
+                                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(LoginTilang.this,
+                                        "Username not found. Please try again.",
+                                        "Login Status",
+                                        JOptionPane.ERROR_MESSAGE));
                             } else {
-                                SwingUtilities.invokeLater(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        JOptionPane.showMessageDialog(LoginTilang.this,
-                                                "Login failed. Status code: " + response.statusCode(),
-                                                "Login Status",
-                                                JOptionPane.ERROR_MESSAGE);
-                                    }
-                                });
+                                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(LoginTilang.this,
+                                        "Login failed. Status code: " + response.statusCode(),
+                                        "Login Status",
+                                        JOptionPane.ERROR_MESSAGE));
                             }
                             return response;
                         })
                         .exceptionally(exception -> {
-                            SwingUtilities.invokeLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    JOptionPane.showMessageDialog(LoginTilang.this,
-                                            "Error sending HTTP request: " + exception.getMessage(),
-                                            "Error",
-                                            JOptionPane.ERROR_MESSAGE);
-                                }
-                            });
+                            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(LoginTilang.this,
+                                    "Error sending HTTP request: " + exception.getMessage(),
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE));
                             return null;
                         });
 
@@ -147,12 +141,12 @@ public class LoginTilang extends JFrame {
     private void showDashboard() {
         DashboardFrame dashboardFrame = new DashboardFrame(loggedInUsername, this);
         dashboardFrame.setVisible(true);
-        setVisible(false); // Sembunyikan frame login
+        setVisible(false); 
     }
 
     public void logout() {
-        loggedInUsername = null; // Bersihkan user yang login
-        setVisible(true); // Tampilkan kembali frame login
+        loggedInUsername = null;
+        setVisible(true);
     }
 
     public static void main(String[] args) {
@@ -171,26 +165,26 @@ class DashboardFrame extends JFrame {
     private String username;
     private LoginTilang mainApp;
     private JTextField usernameField;
-    private JTable resultsTable; // Replace JTextArea with JTable
+    private JTable resultsTable; 
     private DefaultTableModel tableModel;
 
     public DashboardFrame(String username, LoginTilang mainApp) {
-        super("Dashboard");
+        super("Tilang App");
         this.username = username;
         this.mainApp = mainApp;
         initComponents();
     }
 
     private void initComponents() {
-        setSize(800, 400); // Adjust size for better display
+        setSize(800, 400); 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
 
         JLabel welcomeLabel = new JLabel("Halo polisi " + username + ", selamat datang", JLabel.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 18)); // Set font and text size
-        panel.add(welcomeLabel, BorderLayout.NORTH); // Add welcome label at the top
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 18)); 
+        panel.add(welcomeLabel, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -198,32 +192,32 @@ class DashboardFrame extends JFrame {
         registerViolationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Get username input
-                String username = JOptionPane.showInputDialog(DashboardFrame.this, "Masukkan username yang akan dicek:");
-                if (username != null && !username.isEmpty()) {
-                    // Open register violation dialog
-                    String violationType = JOptionPane.showInputDialog(DashboardFrame.this, "Masukkan jenis pelanggaran:");
-                    if (violationType != null && !violationType.isEmpty()) {
-                        String violationLocation = JOptionPane.showInputDialog(DashboardFrame.this, "Masukkan lokasi pelanggaran:");
-                        if (violationLocation != null && !violationLocation.isEmpty()) {
-                            String filename = chooseFile();
-                            if (filename != null) {
-                                // Print data for debugging
-                                System.out.println("Upload file: " + filename);
-                                System.out.println("Violation type: " + violationType);
-                                System.out.println("Violation location: " + violationLocation);
+               setTitle("Register Violation");
+                
+       String username = JOptionPane.showInputDialog(DashboardFrame.this, "Masukkan username yang akan dicek:", "Register Violation", JOptionPane.PLAIN_MESSAGE);
+if (username != null && !username.isEmpty()) {
+    
+    String violationType = JOptionPane.showInputDialog(DashboardFrame.this, "Masukkan jenis pelanggaran:", "Register Violation", JOptionPane.PLAIN_MESSAGE);
+    if (violationType != null && !violationType.isEmpty()) {
+        String violationLocation = JOptionPane.showInputDialog(DashboardFrame.this, "Masukkan lokasi pelanggaran:", "Register Violation", JOptionPane.PLAIN_MESSAGE);
+        if (violationLocation != null && !violationLocation.isEmpty()) {
+            String filename = chooseFile();
+            if (filename != null) {
+                
+                System.out.println("Upload file: " + filename);
+                System.out.println("Violation type: " + violationType);
+                System.out.println("Violation location: " + violationLocation);
 
-                                // Send data to server
-                                sendViolationData(username, violationType, violationLocation, filename);
-                            }
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(DashboardFrame.this,
-                            "Username harus diisi untuk melanjutkan",
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+                sendViolationData(username, violationType, violationLocation, filename);
+            }
+        }
+    }
+} else {
+    JOptionPane.showMessageDialog(DashboardFrame.this,
+            "Username harus diisi untuk melanjutkan",
+            "Error",
+            JOptionPane.ERROR_MESSAGE);
+}
             }
         });
         buttonPanel.add(registerViolationButton);
@@ -232,7 +226,7 @@ class DashboardFrame extends JFrame {
         viewUnpaidUsersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Fetch unpaid users and display in the table
+                
                 fetchUnpaidUsers();
             }
         });
@@ -242,24 +236,23 @@ class DashboardFrame extends JFrame {
         logoutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                mainApp.logout(); // Call logout method from MainApp
-                dispose(); // Close dashboard frame
+                mainApp.logout();
+                dispose();
             }
         });
         buttonPanel.add(logoutButton);
 
-        panel.add(buttonPanel, BorderLayout.SOUTH); // Add buttons panel at the bottom
-
-        // Create a table to display results
+        panel.add(buttonPanel, BorderLayout.SOUTH); 
+      
         tableModel = new DefaultTableModel();
         tableModel.addColumn("Username");
         tableModel.addColumn("Violation Type");
-        tableModel.addColumn("Violation Time");// Add columns based on your server response
+        tableModel.addColumn("Violation Time");
         resultsTable = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(resultsTable);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        JButton fetchNotificationsButton = new JButton("Fetch Notifications");
+        JButton fetchNotificationsButton = new JButton("Send Notifications");
 fetchNotificationsButton.addActionListener(new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -278,7 +271,7 @@ fetchNotificationsButton.addActionListener(new ActionListener() {
         }
     }
 });
-panel.add(fetchNotificationsButton, BorderLayout.EAST); // Tambah
+panel.add(fetchNotificationsButton, BorderLayout.EAST); 
 
         add(panel);
         setLocationRelativeTo(null);
@@ -297,85 +290,89 @@ panel.add(fetchNotificationsButton, BorderLayout.EAST); // Tambah
 
     // Method untuk mengirim data pelanggaran ke server
     private void sendViolationData(String username, String violationType, String violationLocation, String filename) {
-        String boundary = Long.toHexString(System.currentTimeMillis()); // Just generate some unique random value
-        String LINE_FEED = "\r\n";
-        HttpURLConnection httpConn;
-        String charset = "UTF-8";
+    String boundary = Long.toHexString(System.currentTimeMillis()); // Just generate some unique random value
+    String LINE_FEED = "\r\n";
+    HttpURLConnection httpConn;
+    String charset = "UTF-8";
 
-        try {
-            URL url = URI.create("http://localhost:8000/registerviolation").toURL();
-            httpConn = (HttpURLConnection) url.openConnection();
-            httpConn.setUseCaches(false);
-            httpConn.setDoOutput(true); // Indicates POST method
-            httpConn.setDoInput(true);
-            httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-            httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
-            httpConn.setRequestProperty("Test", "Bonjour");
+    try {
+        URL url = URI.create("http://localhost:8000/registerviolation").toURL();
+        httpConn = (HttpURLConnection) url.openConnection();
+        httpConn.setUseCaches(false);
+        httpConn.setDoOutput(true); 
+        httpConn.setDoInput(true);
+        httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+        httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
+        httpConn.setRequestProperty("Test", "Bonjour");
 
-            try (OutputStream outputStream = httpConn.getOutputStream()) {
-                // Add form fields
-                StringBuilder sb = new StringBuilder();
-                sb.append("--").append(boundary).append(LINE_FEED);
-                sb.append("Content-Disposition: form-data; name=\"username\"").append(LINE_FEED);
-                sb.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
-                sb.append(LINE_FEED);
-                sb.append(username).append(LINE_FEED);
+        try (OutputStream outputStream = httpConn.getOutputStream()) {
+            // Add form fields
+            StringBuilder sb = new StringBuilder();
+            sb.append("--").append(boundary).append(LINE_FEED);
+            sb.append("Content-Disposition: form-data; name=\"username\"").append(LINE_FEED);
+            sb.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
+            sb.append(LINE_FEED);
+            sb.append(username).append(LINE_FEED);
 
-                sb.append("--").append(boundary).append(LINE_FEED);
-                sb.append("Content-Disposition: form-data; name=\"violationtype\"").append(LINE_FEED);
-                sb.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
-                sb.append(LINE_FEED);
-                sb.append(violationType).append(LINE_FEED);
+            sb.append("--").append(boundary).append(LINE_FEED);
+            sb.append("Content-Disposition: form-data; name=\"violationtype\"").append(LINE_FEED);
+            sb.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
+            sb.append(LINE_FEED);
+            sb.append(violationType).append(LINE_FEED);
 
-                sb.append("--").append(boundary).append(LINE_FEED);
-                sb.append("Content-Disposition: form-data; name=\"violationlocation\"").append(LINE_FEED);
-                sb.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
-                sb.append(LINE_FEED);
-                sb.append(violationLocation).append(LINE_FEED);
+            sb.append("--").append(boundary).append(LINE_FEED);
+            sb.append("Content-Disposition: form-data; name=\"violationlocation\"").append(LINE_FEED);
+            sb.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
+            sb.append(LINE_FEED);
+            sb.append(violationLocation).append(LINE_FEED);
 
-                outputStream.write(sb.toString().getBytes(charset));
+            outputStream.write(sb.toString().getBytes(charset));
 
-                // Add file part
-                File file = new File(filename);
-                sb = new StringBuilder();
-                sb.append("--").append(boundary).append(LINE_FEED);
-                sb.append("Content-Disposition: form-data; name=\"image\"; filename=\"").append(file.getName()).append("\"").append(LINE_FEED);
-                sb.append("Content-Type: ").append(HttpURLConnection.guessContentTypeFromName(file.getName())).append(LINE_FEED);
-                sb.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
-                sb.append(LINE_FEED);
+          
+            File file = new File(filename);
+            sb = new StringBuilder();
+            sb.append("--").append(boundary).append(LINE_FEED);
+            sb.append("Content-Disposition: form-data; name=\"image\"; filename=\"").append(file.getName()).append("\"").append(LINE_FEED);
+            sb.append("Content-Type: ").append(HttpURLConnection.guessContentTypeFromName(file.getName())).append(LINE_FEED);
+            sb.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
+            sb.append(LINE_FEED);
 
-                outputStream.write(sb.toString().getBytes(charset));
+            outputStream.write(sb.toString().getBytes(charset));
 
-                try (FileInputStream inputStream = new FileInputStream(file)) {
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                    }
+            try (FileInputStream inputStream = new FileInputStream(file)) {
+                byte[] buffer = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
                 }
-
-                outputStream.write(LINE_FEED.getBytes(charset));
-                outputStream.write(("--" + boundary + "--").getBytes(charset));
-                outputStream.flush();
             }
 
-            int responseCode = httpConn.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                // Jika pengiriman sukses, simpan file ke direktori uploads
-                // String savedFilePath = saveToUploads(filename);
-                
-                    JOptionPane.showMessageDialog(DashboardFrame.this, "Pelanggaran berhasil direkam", "Sukses", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(DashboardFrame.this, "Gagal menyimpan file ke uploads", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            
-            httpConn.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Exception: " + e.getMessage());
-            JOptionPane.showMessageDialog(DashboardFrame.this, "Gagal merekam pelanggaran. Terjadi kesalahan IO", "Error", JOptionPane.ERROR_MESSAGE);
+            outputStream.write(LINE_FEED.getBytes(charset));
+            outputStream.write(("--" + boundary + "--").getBytes(charset));
+            outputStream.flush();
         }
+
+        int responseCode = httpConn.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            
+            JOptionPane.showMessageDialog(DashboardFrame.this, "Pelanggaran berhasil direkam", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        } else if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            JOptionPane.showMessageDialog(DashboardFrame.this, "Unauthorized access. Admins cannot register violations.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (responseCode == HttpURLConnection.HTTP_NOT_FOUND) {
+            JOptionPane.showMessageDialog(DashboardFrame.this, "Username not found. Please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else if (responseCode == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+            JOptionPane.showMessageDialog(DashboardFrame.this, "Internal Server Error. Please try again later.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(DashboardFrame.this, "Failed to save file to uploads. Status code: " + responseCode, "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        httpConn.disconnect();
+    } catch (IOException e) {
+        e.printStackTrace();
+        System.err.println("Exception: " + e.getMessage());
+        JOptionPane.showMessageDialog(DashboardFrame.this, "Gagal merekam pelanggaran. Terjadi kesalahan IO", "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
 private void fetchNotifications(String username) {
     try {
         HttpClient client = HttpClient.newHttpClient();
@@ -390,14 +387,14 @@ private void fetchNotifications(String username) {
                     System.out.println("Response Body: " + response.body());
 
                     if (response.statusCode() == 200) {
-                        String responseBody = response.body().trim(); // Trim to remove any extra whitespace
+                        String responseBody = response.body().trim(); 
 
-                        // Check if response body contains "No new violations found"
+                        
                         if ("No new violations found".equals(responseBody)) {
-                            // No need to show notification
+                          
                             System.out.println("No new violations found");
                         } else if ("New violations found".equals(responseBody)) {
-                            // Show notification for new violations
+                           
                             SwingUtilities.invokeLater(() -> {
                                 JOptionPane.showMessageDialog(DashboardFrame.this,
                                         "New violations found and notified!",
@@ -405,7 +402,7 @@ private void fetchNotifications(String username) {
                                         JOptionPane.INFORMATION_MESSAGE);
                             });
                         } else {
-                            // Unexpected response
+                          
                             System.out.println("Unexpected response: " + responseBody);
                         }
                     } else {
@@ -447,19 +444,18 @@ private void fetchNotifications(String username) {
                 throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
             }
 
-            // Kosongkan tabel sebelum menambahkan data baru
+            
             tableModel.setRowCount(0);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
             while ((line = br.readLine()) != null) {
-                // Split the line to get username and violation type
+              
                 String[] data = line.split(",");
                 String username = data[0].trim();
                 String violationType = data[1].trim();
                 String violationTime = data[2].trim();
 
-                // Add row to table model
                 tableModel.addRow(new Object[]{username, violationType, violationTime});
             }
             br.close();
@@ -489,29 +485,57 @@ class RegisterDialog extends JDialog {
     }
 
     private void initComponents() {
-        JPanel panel = new JPanel(new GridLayout(5, 2)); // Increased rows for email field
+  JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+    
+        JLabel titleLabel = new JLabel("Register your account", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        panel.add(titleLabel, gbc);
 
+        gbc.gridwidth = 1;
+        gbc.gridy++;
+
+     
         JLabel usernameLabel = new JLabel("Username:");
+        gbc.gridx = 0;
+        panel.add(usernameLabel, gbc);
+
         usernameField = new JTextField(20);
+        gbc.gridx = 1;
+        panel.add(usernameField, gbc);
 
+       
+        gbc.gridy++;
+        gbc.gridx = 0;
         JLabel passwordLabel = new JLabel("Password:");
-        passwordField = new JPasswordField(20);
+        panel.add(passwordLabel, gbc);
 
-        JLabel emailLabel = new JLabel("Email:"); // Added email label
-        emailField = new JTextField(20); // Added email text field
+        passwordField = new JPasswordField(20);
+        gbc.gridx = 1;
+        panel.add(passwordField, gbc);
+
+     
+        gbc.gridy++;
+        gbc.gridx = 0;
+        JLabel emailLabel = new JLabel("Email:");
+        panel.add(emailLabel, gbc);
+
+        emailField = new JTextField(20);
+        gbc.gridx = 1;
+        panel.add(emailField, gbc);
 
         registerButton = new JButton("Register");
-
-        panel.add(usernameLabel);
-        panel.add(usernameField);
-        panel.add(passwordLabel);
-        panel.add(passwordField);
-        panel.add(emailLabel); // Added email label
-        panel.add(emailField); // Added email text field
-        panel.add(new JLabel());
-        panel.add(registerButton);
-        panel.add(new JLabel());
-        panel.add(new JLabel()); // Empty label for layout spacing
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(registerButton, gbc);
 
         registerButton.addActionListener(new ActionListener() {
             @Override
@@ -529,27 +553,26 @@ class RegisterDialog extends JDialog {
                     return;
                 }
 
-                // Create HttpClient
+               
                 HttpClient client = HttpClient.newHttpClient();
 
-                // Prepare JSON body
                 String jsonBody = "{\"username\":\"" + username + "\", \"password\":\"" + password +
                         "\", \"email\":\"" + email + "\", \"isadmin\": true}";
 
-                // Create HttpRequest
+      
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create("http://localhost:8000/register")) // Adjust URL accordingly
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                         .build();
 
-                // Send async request
+        
                 client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                         .thenApply(response -> {
                             System.out.println("Response Code: " + response.statusCode());
                             System.out.println("Response Body: " + response.body());
 
-                            // Handle response accordingly
+                        
                             if (response.statusCode() == 200) {
                                 SwingUtilities.invokeLater(new Runnable() {
                                     @Override
